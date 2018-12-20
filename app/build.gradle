@@ -1,9 +1,12 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
-apply plugin: "androidx.navigation.safeargs"
-apply plugin: 'com.google.android.gms.oss-licenses-plugin'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-android-extensions'
+    id 'kotlin-kapt'
+    id "androidx.navigation.safeargs"
+    id 'com.google.android.gms.oss-licenses-plugin'
+    id 'com.github.triplet.play' version '2.0.0'
+}
 
 android {
     compileSdkVersion compile_sdk_version
@@ -16,6 +19,15 @@ android {
         setProperty("archivesBaseName", applicationId + "-v" + versionName)
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+    signingConfigs {
+        release {
+            // System.getenv() gets the environment variables from the CircleCI machine
+            storeFile file(System.getenv("KEYSTORE") ?: "keystore.jks") // Files need to be decoded in the config.yml file
+            storePassword System.getenv("KEYSTORE_PASSWORD")
+            keyAlias System.getenv("KEYSTORE_ALIAS")
+            keyPassword System.getenv("KEYSTORE_PASSWORD")
+        }
+    }
     buildTypes {
         release {
             minifyEnabled true
@@ -26,6 +38,7 @@ android {
                     appName:"@string/app_name",
                     workManagerInitAuthorities:"com.ricknout.rugbyranker.workmanager-init"
             ]
+            signingConfig signingConfigs.release
         }
         debug {
             applicationIdSuffix ".debug"
@@ -36,6 +49,14 @@ android {
             ]
         }
     }
+}
+
+// Deployment to Google Play configuration for com.github.triplet.play
+play {
+    track = 'internal'
+    serviceAccountCredentials = file(System.getenv("PRIVATE_KEY") ?: "rxstarter_pk.json") // Private Key is decoded from CircleCi environment variables
+    defaultToAppBundles = true
+    resolutionStrategy = "ignore" //This means the build will pass even if it doesn't deploy successfully. Deployment will fail if the versionCode does not change.
 }
 
 dependencies {
