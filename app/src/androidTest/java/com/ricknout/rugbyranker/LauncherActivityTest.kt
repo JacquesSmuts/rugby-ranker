@@ -25,7 +25,7 @@ class LauncherActivityTest {
 
     @Test
     fun launcherActivityTest() {
-        // Added a sleep stEspressoUtilsatement to match the app's execution delay.
+        // Added a sleep statement to match the app's execution delay.
         // Idling resources are officially recommended but difficult to get working so I'm not using that right now.
         Thread.sleep(7000)
 
